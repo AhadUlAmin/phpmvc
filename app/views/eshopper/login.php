@@ -4,10 +4,11 @@
 			<div class="row" style="text-align:center;">
 				<div class="col-sm-4  col-sm-offset-1" style="display:inline-block;float:none;">
 					<div class="login-form"><!--login form-->
+					<span style="color:red;font-weight:700"> <?php err(); ?> </span>
 						<h2>Login to your account</h2>
-						<form action="#" method="POST">
-							<input type="text" placeholder="Name" />
-							<input type="email" placeholder="Email Address" />
+						<form  method="POST">
+							<input name="userEmail" type="email" placeholder="Email Adress" />
+							<input name="userPassword" type="password" placeholder="Password" />
 							<span>
 								<input type="checkbox" class="checkbox"> 
 								Keep me signed in

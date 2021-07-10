@@ -31,7 +31,7 @@ class Database
         $data = $stmt->fetchAll(PDO::FETCH_OBJ);
        if($result)
        {
-        if(is_array($data))
+        if(is_array($data) && count($data)>0)
         {
             return $data;
         }

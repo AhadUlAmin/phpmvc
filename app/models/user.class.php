@@ -14,28 +14,30 @@ class User
         if(empty($data['userEmail']) || !preg_match("/^[a-zA-Z0-9_-]+@[a-zA-Z]+.[a-zA-Z]+$/",$data['userEmail'])){
             $this->err .= "Not a valid email <br>";
         }
-        if(empty($data['userFirstName']) || !preg_match("/^[a-zA-Z]+$/",$data['userFirstName'])){
+        if(empty($data['userFirstName'])){
             $this->err .= "Enter valid First Name <br>";
         }
-        if(empty($data['userLastName']) || !preg_match("/^[a-zA-Z]+$/",$data['userLastName'])){
+        if(empty($data['userLastName'])){
             $this->err .= "Enter valid Last Name <br>";
         }
-        if(strlen($data['userPassword']) < 8){
+        if(strlen($data['userPassword']) < 3){
             $this->err .= "Password must be atleast 8 charecters <br>";
         }
          //check email address 
-        // $arr = [];
-        // $sql = "SELECT * FROM users WHERE userEmail = :userEmail limit 1";
-        // $arr['userEmail'] = $data['userEmail'];
-        // $check = $db->read($sql,$arr);
-        // if(is_array($check)){
-        //   $this->err .= "Email already in use <br>";
-        // }
+    
+        $sql = "SELECT * FROM users WHERE userEmail = :userEmail";
+        $arr['userEmail'] =  $data['userEmail'];
+        $check = $db->read($sql,$arr);
+        if(is_array($check)){
+            show($check);
+          $this->err .= "Email already in use <br>";
+        }
         if($this->err == ""){
           //save
           $data['userType'] = "Customer";
           $data['userAltName'] = $this->generateUniqueId(11);
           $data['userJoined'] = date("Y-m-d H:i:s");
+          $data['userPassword'] = hash('sha1',$data['userPassword']);
 
           $query = "INSERT INTO `users` (`userAltName`, `userEmail`, `userFirstName`,
            `userLastName`, `userPassword`, `userJoined`,  `userType`)
@@ -54,8 +56,38 @@ class User
 
     }
 
-    public function login()
+    public function login($POST)
     {
+        $data = [];
+        $db = Database::getInstance();
+        $data['userEmail'] = trim($POST['userEmail']);
+        $data['userPassword'] = trim($POST['userPassword']);
+
+        if(empty($data['userEmail']) || !preg_match("/^[a-zA-Z0-9_-]+@[a-zA-Z]+.[a-zA-Z]+$/",$data['userEmail'])){
+            $this->err .= "Not a valid email <br>";
+        }
+        if(strlen($data['userPassword']) < 3){
+            $this->err .= "Password must be atleast 8 charecters <br>";
+        }
+
+        if($this->err == ""){
+          //confirm
+          $data['userPassword'] = hash('sha1',$data['userPassword']);
+    
+         $query = "SELECT * FROM users WHERE userEmail = :userEmail AND userPassword = :userPassword";
+         $result = $db->read($query,$data);
+         if(is_array($result)){
+            $_SESSION['userUniqueId'] = $result[0]->userAltName;
+            show($_SESSION['userUniqueId']);
+            header("Location: ". ROOT . "home");
+            die;
+         }
+
+         $this->err .= "Email / Password is not matched <br>";
+
+        }
+        
+        $_SESSION['err'] = $this->err;
 
     }
 
